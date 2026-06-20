@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ボディメイクPFC計算機</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --red: #dc2626;
+      --red-dark: #b91c1c;
+      --red-light: #fee2e2;
+      --blue: #2563eb;
+      --orange: #f59e0b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 20px 14px 44px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--red), var(--red-dark));
+      color: white;
+      border-radius: 22px;
+      padding: 22px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 12px 28px rgba(220,38,38,0.22);
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0 0 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      opacity: 0.92;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 6px 22px rgba(15,23,42,0.06);
+      border: 1px solid rgba(229,231,235,0.85);
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 0 0 12px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px 12px;
+      border-radius: 13px;
+      border: 1px solid #d1d5db;
+      font-size: 16px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 13px;
+      padding: 14px;
+      margin-top: 12px;
+      font-size: 17px;
+      font-weight: 800;
+      color: white;
+      background: var(--red);
+      box-shadow: 0 8px 18px rgba(220,38,38,0.22);
+    }
+
+    button:active {
+      transform: scale(0.99);
+    }
+
+    .clear {
+      background: #6b7280;
+      box-shadow: none;
+      font-size: 15px;
+    }
+
+    .mini-btn {
+      background: #111827;
+      box-shadow: none;
+      font-size: 15px;
+      padding: 12px;
+    }
+
+    .result-title {
+      display: inline-block;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: var(--red-light);
+      color: var(--red-dark);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .calorie-box {
+      background: linear-gradient(135deg, var(--red), var(--red-dark));
+      color: white;
+      border-radius: 18px;
+      padding: 15px;
+      text-align: center;
+      margin: 8px 0 12px;
+    }
+
+    .calorie-label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .calorie-value {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .pfc {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .macro {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .macro-name {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+    }
+
+    .macro-g {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .macro-kcal {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .chart-wrap {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 12px;
+      align-items: center;
+      background: #fff7f7;
+      border: 1px solid #fecaca;
+      border-radius: 18px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .pie-svg {
+      width: 160px;
+      height: 160px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .legend {
+      display: grid;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 12px 1fr;
+      gap: 8px;
+      align-items: start;
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      margin-top: 3px;
+    }
+
+    .legend strong {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .detail, .note {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .info {
+      background: #f9fafb;
+      border-radius: 14px;
+      padding: 11px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #374151;
+      margin-top: 10px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+    }
+
+    .tdee-box {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #9a3412;
+      display: none;
+    }
+
+    .error {
+      background: #fef2f2;
+      color: #991b1b;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 14px 0;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--red-dark);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    @media (max-width: 420px) {
+      .chart-wrap { grid-template-columns: 1fr; }
+      .pie-svg { width: 190px; height: 190px; }
+      .calorie-value { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>ボディメイクPFC計算機</h1>
+      <div class="subtitle">減量・維持・増量のカロリーとPFCを、活動量からかんたん計算</div>
+    </div>
+
+    <div class="card">
+      <h2>入力</h2>
+
+      <label>性別</label>
+      <select id="sex">
+        <option value="">選択してください</option>
+        <option value="male">男性</option>
+        <option value="female">女性</option>
+      </select>
+
+      <div class="grid">
+        <div>
+          <label>年齢</label>
+          <input id="age" type="number" inputmode="numeric">
+        </div>
+        <div>
+          <label>身長 cm</label>
+          <input id="height" type="number" inputmode="decimal">
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>体重 kg</label>
+          <input id="weight" type="number" inputmode="decimal">
+        </div>
+        <div>
+          <label>体脂肪率 % 任意</label>
+          <input id="bodyfat" type="number" inputmode="decimal">
+        </div>
+      </div>
+
+      <label>活動レベル</label>
+      <select id="activity">
+        <option value="">選択してください</option>
+        <option value="1.2">低い：座り仕事中心 / 1日〜4,000歩程度 または 運動少なめ（×1.20）</option>
+        <option value="1.35">やや低い：1日4,000〜6,000歩程度 または 筋トレ週1〜2回程度（×1.35）</option>
+        <option value="1.5">普通：1日6,000〜8,000歩程度 または 筋トレ週2〜4回程度（×1.50）</option>
+        <option value="1.65">高め：1日8,000〜10,000歩程度 または 筋トレ週4〜5回程度（×1.65）</option>
+        <option value="1.8">かなり高い：1日10,000歩以上 または 筋トレ週5〜6回程度（×1.80）</option>
+        <option value="1.95">非常に高い：肉体労働 または 高歩数＋高頻度トレーニング（×1.95）</option>
+      </select>
+
+      <button type="button" class="mini-btn" onclick="calculateTDEEOnly()">消費カロリーだけ計算</button>
+      <div id="tdeePreview" class="tdee-box"></div>
+
+      <label>1日の概算消費カロリー kcal</label>
+      <input id="tdee" type="number" inputmode="decimal">
+
+      <button type="button" onclick="calculatePFC()">これでPFC計算する</button>
+      <button type="button" class="clear" onclick="clearAll()">入力をクリア</button>
+
+      <div id="error" class="error"></div>
+      <div class="note">活動レベルを選んでPFC計算を押すと、前回の消費カロリーは自動で上書きされます。手入力したい場合は活動レベルを未選択にしてください。</div>
+    </div>
+
+    <div class="card">
+      <h2>計算結果</h2>
+      <div id="result"><div class="empty">まだ計算結果はありません。</div></div>
+    </div>
+
+    <div class="card">
+      <h2>計算ルール</h2>
+      <div class="note">
+        TDEE = 基礎代謝 × 活動係数。<br>
+        維持：TDEEそのまま。減量：TDEE - 480kcal。増量：TDEE + 250kcal。<br>
+        女性一般ケース：減量 P1.8g/kg・F0.8g/kg、維持 P1.6g/kg・F0.9g/kg、増量 P1.7g/kg・F1.0g/kg。<br>
+        男性：減量 P2.4g/kg・F0.55g/kg、維持 P2.0g/kg・F0.9g/kg、増量 P1.9g/kg・F1.0g/kg。<br>
+        P=4kcal/g、F=9kcal/g、C=4kcal/g。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function num(id) {
+      return parseFloat(document.getElementById(id).value);
+    }
+
+    function round(x) {
+      return Math.round(x);
+    }
+
+    function showError(text) {
+      var e = document.getElementById("error");
+      e.innerText = text;
+      e.style.display = "block";
+    }
+
+    function hideError() {
+      var e = document.getElementById("error");
+      e.innerText = "";
+      e.style.display = "none";
+    }
+
+    function estimateBMR(sex, age, height, weight) {
+      if (sex === "male") {
+        return 10 * weight + 6.25 * height - 5 * age + 5;
+      }
+      return 10 * weight + 6.25 * height - 5 * age - 161;
+    }
+
+    function validateBaseInputs(includeActivity) {
+      var sex = document.getElementById("sex").value;
+      var age = num("age");
+      var height = num("height");
+      var weight = num("weight");
+      var activity = num("activity");
+
+      if (sex === "") {
+        showError("性別を選択してください。");
+        return null;
+      }
+      if (isNaN(age) || age <= 0 || age > 100) {
+        showError("年齢を入力してください。");
+        return null;
+      }
+      if (isNaN(height) || height <= 0) {
+        showError("身長を入力してください。");
+        return null;
+      }
+      if (isNaN(weight) || weight <= 0) {
+        showError("体重を入力してください。");
+        return null;
+      }
+      if (includeActivity && (isNaN(activity) || activity <= 0)) {
+        showError("活動レベルを選択してください。");
+        return null;
+      }
+
+      return { sex: sex, age: age, height: height, weight: weight, activity: activity };
+    }
+
+    function updateTDEEPreview(bmr, activity, tdee) {
+      var box = document.getElementById("tdeePreview");
+      box.style.display = "block";
+      box.innerHTML =
+        "<strong>推定TDEE：" + round(tdee) + " kcal/日</strong><br>" +
+        "基礎代謝：" + round(bmr) + " kcal<br>" +
+        "活動係数：×" + Number(activity).toFixed(2);
+    }
+
+    function calculateTDEEOnly() {
+      hideError();
+      var base = validateBaseInputs(true);
+      if (!base) return;
+
+      var bmr = estimateBMR(base.sex, base.age, base.height, base.weight);
+      var tdee = bmr * base.activity;
+
+      document.getElementById("tdee").value = round(tdee);
+      updateTDEEPreview(bmr, base.activity, tdee);
+    }
+
+    function getSexRules(sex, bmi) {
+      var rules = {};
+
+      if (sex === "male") {
+        rules.name = "男性用";
+        rules.cutP = 2.4;
+        rules.cutF = 0.55;
+        rules.maintainP = 2.0;
+        rules.maintainF = 0.9;
+        rules.bulkP = 1.9;
+        rules.bulkF = 1.0;
+
+        if (bmi >= 25) {
+          rules.cutP = 2.1;
+          rules.maintainP = 1.8;
+          rules.bulkP = 1.7;
+        }
+        if (bmi < 20) {
+          rules.cutP = 2.2;
+          rules.cutF = 0.65;
+          rules.maintainP = 1.9;
+          rules.maintainF = 0.9;
+          rules.bulkP = 1.9;
+        }
+      } else {
+        rules.name = "女性一般用";
+        rules.cutP = 1.8;
+        rules.cutF = 0.8;
+        rules.maintainP = 1.6;
+        rules.maintainF = 0.9;
+        rules.bulkP = 1.7;
+        rules.bulkF = 1.0;
+
+        if (bmi >= 25) {
+          rules.cutP = 1.7;
+          rules.maintainP = 1.5;
+          rules.bulkP = 1.6;
+        }
+        if (bmi < 20) {
+          rules.cutP = 1.8;
+          rules.cutF = 0.9;
+          rules.maintainP = 1.6;
+          rules.maintainF = 1.0;
+          rules.bulkP = 1.7;
+          rules.bulkF = 1.05;
+        }
+      }
+
+      return rules;
+    }
+
+    function macroHTML(name, g, kcal) {
+      return '<div class="macro">' +
+        '<div class="macro-name">' + name + '</div>' +
+        '<div class="macro-g">' + round(g) + 'g</div>' +
+        '<div class="macro-kcal">' + round(kcal) + 'kcal</div>' +
+      '</div>';
+    }
+
+    function polarToCartesian(cx, cy, r, angleDeg) {
+      var angleRad = (angleDeg - 90) * Math.PI / 180.0;
+      return { x: cx + (r * Math.cos(angleRad)), y: cy + (r * Math.sin(angleRad)) };
+    }
+
+    function describeArc(cx, cy, r, startAngle, endAngle) {
+      var start = polarToCartesian(cx, cy, r, endAngle);
+      var end = polarToCartesian(cx, cy, r, startAngle);
+      var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+      return ["M", cx, cy, "L", start.x, start.y, "A", r, r, 0, largeArcFlag, 0, end.x, end.y, "Z"].join(" ");
+    }
+
+    function pieChartHTML(p, f, c) {
+      var pk = p * 4;
+      var fk = f * 9;
+      var ck = c * 4;
+      var total = pk + fk + ck;
+
+      var data = [
+        { label: "P", grams: p, kcal: pk, color: "#dc2626" },
+        { label: "F", grams: f, kcal: fk, color: "#f59e0b" },
+        { label: "C", grams: c, kcal: ck, color: "#2563eb" }
+      ];
+
+      var currentAngle = 0;
+      var paths = "";
+      var labels = "";
+
+      for (var i = 0; i < data.length; i++) {
+        var pct = data[i].kcal / total * 100;
+        var angle = pct / 100 * 360;
+        var endAngle = currentAngle + angle;
+        var midAngle = currentAngle + angle / 2;
+        var labelPos = polarToCartesian(100, 100, 54, midAngle);
+
+        paths += '<path d="' + describeArc(100, 100, 86, currentAngle, endAngle) + '" fill="' + data[i].color + '" stroke="#ffffff" stroke-width="2"></path>';
+
+        if (pct >= 8) {
+          labels += '<text x="' + labelPos.x + '" y="' + labelPos.y + '" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="800" fill="#ffffff">' +
+                    data[i].label + ' ' + round(pct) + '%</text>';
+        }
+
+        currentAngle = endAngle;
+      }
+
+      var legend = "";
+      for (var j = 0; j < data.length; j++) {
+        var pct2 = data[j].kcal / total * 100;
+        legend += '<div class="legend-item">' +
+          '<span class="dot" style="background:' + data[j].color + ';"></span>' +
+          '<div><strong>' + data[j].label + '</strong>：' + round(data[j].grams) + 'g / ' + round(pct2) + '%<br><span class="note">' + round(data[j].kcal) + 'kcal</span></div>' +
+        '</div>';
+      }
+
+      return '<div class="chart-wrap">' +
+        '<svg class="pie-svg" viewBox="0 0 200 200" aria-label="PFC円グラフ">' +
+          paths +
+          '<circle cx="100" cy="100" r="38" fill="#ffffff"></circle>' +
+          '<text x="100" y="94" text-anchor="middle" font-size="13" font-weight="800" fill="#111827">PFC</text>' +
+          '<text x="100" y="112" text-anchor="middle" font-size="11" fill="#6b7280">' + round(total) + 'kcal</text>' +
+          labels +
+        '</svg>' +
+        '<div class="legend">' + legend + '</div>' +
+      '</div>';
+    }
+
+    function buildPlan(weight, totalCal, pPerKg, fPerKg) {
+      var p = weight * pPerKg;
+      var f = weight * fPerKg;
+
+      var fatMax = totalCal * 0.35 / 9;
+      f = Math.min(f, fatMax);
+
+      var c = (totalCal - (p * 4 + f * 9)) / 4;
+      if (c < 0) c = 0;
+
+      return { p: p, f: f, c: c };
+    }
+
+    function blockHTML(title, totalCal, p, f, c, memo) {
+      var pk = p * 4;
+      var fk = f * 9;
+      var ck = c * 4;
+      var pfcTotal = pk + fk + ck;
+
+      var pRate = pk / pfcTotal * 100;
+      var fRate = fk / pfcTotal * 100;
+      var cRate = ck / pfcTotal * 100;
+
+      return '<div style="margin-bottom:22px;">' +
+        '<div class="result-title">' + title + '</div>' +
+        '<div class="calorie-box">' +
+          '<div class="calorie-label">総摂取カロリー</div>' +
+          '<div class="calorie-value">' + round(totalCal) + ' kcal</div>' +
+        '</div>' +
+        '<div class="pfc">' +
+          macroHTML("P", p, pk) +
+          macroHTML("F", f, fk) +
+          macroHTML("C", c, ck) +
+        '</div>' +
+        pieChartHTML(p, f, c) +
+        '<div class="detail">PFC：P ' + round(p) + 'g / F ' + round(f) + 'g / C ' + round(c) + 'g<br>' +
+        'PFC比率：P ' + round(pRate) + '% / F ' + round(fRate) + '% / C ' + round(cRate) + '%<br>' +
+        'PFC換算カロリー：' + round(pfcTotal) + ' kcal</div>' +
+        '<div class="note" style="margin-top:8px;">' + memo + '</div>' +
+      '</div>';
+    }
+
+    function calculatePFC() {
+      hideError();
+
+      var base = validateBaseInputs(false);
+      if (!base) return;
+
+      var bodyfat = num("bodyfat");
+      var activity = num("activity");
+      var tdeeInput = num("tdee");
+
+      if (!isNaN(bodyfat) && (bodyfat < 3 || bodyfat > 60)) {
+        showError("体脂肪率は3〜60%の範囲で入力してください。");
+        return;
+      }
+
+      var bmr = estimateBMR(base.sex, base.age, base.height, base.weight);
+      var tdee;
+
+      if (!isNaN(activity) && activity > 0) {
+        tdee = bmr * activity;
+        document.getElementById("tdee").value = round(tdee);
+        updateTDEEPreview(bmr, activity, tdee);
+      } else if (!isNaN(tdeeInput) && tdeeInput > 0) {
+        tdee = tdeeInput;
+      } else {
+        showError("活動レベルを選択するか、1日の概算消費カロリーを入力してください。");
+        return;
+      }
+
+      var heightM = base.height / 100;
+      var bmi = base.weight / (heightM * heightM);
+      var activityRatio = tdee / bmr;
+      var rules = getSexRules(base.sex, bmi);
+
+      var cutCal = tdee - 480;
+      var maintainCal = tdee;
+      var bulkCal = tdee + 250;
+
+      if (cutCal < bmr * 1.05) {
+        cutCal = bmr * 1.05;
+      }
+
+      var cut = buildPlan(base.weight, cutCal, rules.cutP, rules.cutF);
+      var maintain = buildPlan(base.weight, maintainCal, rules.maintainP, rules.maintainF);
+      var bulk = buildPlan(base.weight, bulkCal, rules.bulkP, rules.bulkF);
+
+      var lbmText = "";
+      if (!isNaN(bodyfat)) {
+        var lbm = base.weight * (1 - bodyfat / 100);
+        lbmText = "除脂肪体重： " + lbm.toFixed(1) + " kg<br>";
+      }
+
+      var summary = '<div class="info">' +
+        '<div class="section-label">SUMMARY</div>' +
+        '計算タイプ：' + rules.name + '<br>' +
+        '推定基礎代謝：' + round(bmr) + ' kcal<br>' +
+        '推定TDEE：' + round(tdee) + ' kcal<br>' +
+        'TDEE ÷ 基礎代謝：' + activityRatio.toFixed(2) + ' 倍<br>' +
+        'BMI：' + bmi.toFixed(1) + '<br>' +
+        lbmText +
+        '減量係数：P ' + rules.cutP.toFixed(2) + 'g/kg・F ' + rules.cutF.toFixed(2) + 'g/kg<br>' +
+        '維持係数：P ' + rules.maintainP.toFixed(2) + 'g/kg・F ' + rules.maintainF.toFixed(2) + 'g/kg<br>' +
+        '増量係数：P ' + rules.bulkP.toFixed(2) + 'g/kg・F ' + rules.bulkF.toFixed(2) + 'g/kg' +
+        '</div>';
+
+      document.getElementById("result").innerHTML =
+        summary +
+        blockHTML("減量", cutCal, cut.p, cut.f, cut.c, "TDEEから約480kcal引いた設定。1ヶ月で約2kg減を狙う目安。") +
+        blockHTML("維持", maintainCal, maintain.p, maintain.f, maintain.c, "現在の体重を維持するメンテナンスカロリー。体重変化を見て±100〜200kcalで調整。") +
+        blockHTML("増量", bulkCal, bulk.p, bulk.f, bulk.c, "TDEEに約250kcal足したリーンバルク設定。脂肪を増やしすぎず筋肥大を狙う目安。");
+
+      document.getElementById("result").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function clearAll() {
+      document.getElementById("sex").value = "";
+      document.getElementById("age").value = "";
+      document.getElementById("height").value = "";
+      document.getElementById("weight").value = "";
+      document.getElementById("bodyfat").value = "";
+      document.getElementById("activity").value = "";
+      document.getElementById("tdee").value = "";
+      document.getElementById("tdeePreview").style.display = "none";
+      document.getElementById("tdeePreview").innerHTML = "";
+      hideError();
+      document.getElementById("result").innerHTML = '<div class="empty">まだ計算結果はありません。</div>';
+    }
+  </script>
+</body>
+</html>
