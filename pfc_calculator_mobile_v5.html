@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PFC計算ツール</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 18px 14px 40px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin: 8px 0 4px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    h2 {
+      font-size: 18px;
+      margin: 0 0 12px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+    }
+    input, select {
+      width: 100%;
+      padding: 13px 12px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      font-size: 16px;
+      background: #fff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+      font-size: 17px;
+      font-weight: 800;
+      color: white;
+      background: #16a34a;
+    }
+    .clear {
+      background: #6b7280;
+      font-size: 15px;
+    }
+    .result-title {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .calorie-box {
+      background: #111827;
+      color: white;
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      margin: 8px 0 12px;
+    }
+    .calorie-label {
+      font-size: 12px;
+      color: #d1d5db;
+    }
+    .calorie-value {
+      font-size: 34px;
+      font-weight: 900;
+    }
+    .pfc {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .macro {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .macro-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: #6b7280;
+    }
+    .macro-g {
+      font-size: 22px;
+      font-weight: 900;
+    }
+    .macro-kcal {
+      font-size: 11px;
+      color: #6b7280;
+    }
+    .detail, .note {
+      font-size: 12px;
+      line-height: 1.6;
+      color: #6b7280;
+    }
+    .error {
+      background: #fef2f2;
+      color: #991b1b;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      font-size: 13px;
+      padding: 14px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PFC計算ツール</h1>
+    <div class="subtitle">減量・増量の総摂取カロリーとPFCを計算</div>
+
+    <div class="card">
+      <h2>入力</h2>
+
+      <label>性別</label>
+      <select id="sex">
+        <option value="">選択してください</option>
+        <option value="male">男性</option>
+        <option value="female">女性</option>
+      </select>
+
+      <div class="grid">
+        <div>
+          <label>身長 cm</label>
+          <input id="height" type="number" inputmode="decimal" placeholder="例：185">
+        </div>
+        <div>
+          <label>体重 kg</label>
+          <input id="weight" type="number" inputmode="decimal" placeholder="例：70">
+        </div>
+      </div>
+
+      <label>1日の概算消費カロリー kcal</label>
+      <input id="tdee" type="number" inputmode="decimal" placeholder="例：2650">
+
+      <button type="button" onclick="calculatePFC()">これで計算する</button>
+      <button type="button" class="clear" onclick="clearAll()">入力をクリア</button>
+
+      <div id="error" class="error"></div>
+    </div>
+
+    <div class="card">
+      <h2>計算結果</h2>
+      <div id="result"><div class="empty">まだ計算結果はありません。</div></div>
+    </div>
+
+    <div class="card">
+      <h2>計算ルール</h2>
+      <div class="note">
+        減量：1ヶ月で約2kg減を想定し、消費カロリーから480kcal引く。<br>
+        増量：筋肥大向けに消費カロリーへ250kcal足す。<br>
+        P=4kcal/g、F=9kcal/g、C=4kcal/g。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function num(id) {
+      return parseFloat(document.getElementById(id).value);
+    }
+
+    function round(x) {
+      return Math.round(x);
+    }
+
+    function showError(text) {
+      var e = document.getElementById("error");
+      e.innerText = text;
+      e.style.display = "block";
+    }
+
+    function hideError() {
+      var e = document.getElementById("error");
+      e.innerText = "";
+      e.style.display = "none";
+    }
+
+    function macroHTML(name, g, kcal) {
+      return '<div class="macro">' +
+        '<div class="macro-name">' + name + '</div>' +
+        '<div class="macro-g">' + round(g) + 'g</div>' +
+        '<div class="macro-kcal">' + round(kcal) + 'kcal</div>' +
+      '</div>';
+    }
+
+    function blockHTML(title, totalCal, p, f, c, memo) {
+      var pk = p * 4;
+      var fk = f * 9;
+      var ck = c * 4;
+      var pfcTotal = pk + fk + ck;
+
+      return '<div style="margin-bottom:18px;">' +
+        '<div class="result-title">' + title + '</div>' +
+        '<div class="calorie-box">' +
+          '<div class="calorie-label">総摂取カロリー</div>' +
+          '<div class="calorie-value">' + round(totalCal) + ' kcal</div>' +
+        '</div>' +
+        '<div class="pfc">' +
+          macroHTML("P", p, pk) +
+          macroHTML("F", f, fk) +
+          macroHTML("C", c, ck) +
+        '</div>' +
+        '<div class="detail">PFC：P ' + round(p) + 'g / F ' + round(f) + 'g / C ' + round(c) + 'g<br>' +
+        'PFC換算カロリー：' + round(pfcTotal) + ' kcal</div>' +
+        '<div class="note" style="margin-top:8px;">' + memo + '</div>' +
+      '</div>';
+    }
+
+    function calculatePFC() {
+      hideError();
+
+      var sex = document.getElementById("sex").value;
+      var height = num("height");
+      var weight = num("weight");
+      var tdee = num("tdee");
+
+      if (sex === "") {
+        showError("性別を選択してください。");
+        return;
+      }
+      if (isNaN(height) || height <= 0) {
+        showError("身長を入力してください。");
+        return;
+      }
+      if (isNaN(weight) || weight <= 0) {
+        showError("体重を入力してください。");
+        return;
+      }
+      if (isNaN(tdee) || tdee <= 0) {
+        showError("1日の概算消費カロリーを入力してください。");
+        return;
+      }
+
+      var cutCal = tdee - 480;
+      var bulkCal = tdee + 250;
+
+      if (cutCal <= 0) {
+        showError("消費カロリーが低すぎます。正しい数値を入力してください。");
+        return;
+      }
+
+      var cutP = weight * 2.4;
+      var cutF = weight * 0.5;
+      var cutC = (cutCal - (cutP * 4 + cutF * 9)) / 4;
+      if (cutC < 0) cutC = 0;
+
+      var bulkP = weight * 2.0;
+      var bulkF = weight * 0.8;
+      var bulkC = (bulkCal - (bulkP * 4 + bulkF * 9)) / 4;
+      if (bulkC < 0) bulkC = 0;
+
+      var cutMemo = "消費カロリーから約480kcal引いて計算。1ヶ月で約2kg減を狙う設定です。";
+      if (sex === "female") {
+        cutMemo += " 女性は脂質を下げすぎないよう注意。";
+      }
+
+      var bulkMemo = "消費カロリーに約250kcal足したリーンバルク設定。筋肥大しつつ脂肪増加を抑える目安です。";
+
+      document.getElementById("result").innerHTML =
+        blockHTML("減量", cutCal, cutP, cutF, cutC, cutMemo) +
+        blockHTML("増量", bulkCal, bulkP, bulkF, bulkC, bulkMemo);
+
+      document.getElementById("result").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function clearAll() {
+      document.getElementById("sex").value = "";
+      document.getElementById("height").value = "";
+      document.getElementById("weight").value = "";
+      document.getElementById("tdee").value = "";
+      hideError();
+      document.getElementById("result").innerHTML = '<div class="empty">まだ計算結果はありません。</div>';
+    }
+  </script>
+</body>
+</html>
